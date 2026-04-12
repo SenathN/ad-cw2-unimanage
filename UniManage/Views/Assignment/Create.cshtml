@@ -1,0 +1,136 @@
+@model UniManage.Models.ViewModels.CreateAssignmentViewModel
+@{
+    ViewData["Title"] = "Create Assignment";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Create New Assignment</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="CourseId" class="form-label"></label>
+                                    <select asp-for="CourseId" class="form-select" asp-items="ViewBag.Courses">
+                                        <option value="">-- Select Course --</option>
+                                    </select>
+                                    <span asp-validation-for="CourseId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="MaxPoints" class="form-label"></label>
+                                    <input asp-for="MaxPoints" class="form-control" type="number" min="1" max="1000" />
+                                    <span asp-validation-for="MaxPoints" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Title" class="form-label"></label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="8"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="DueDate" class="form-label"></label>
+                            <input asp-for="DueDate" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="DueDate" class="text-danger"></span>
+                        </div>
+
+                        <!-- Plagiarism Prevention Settings -->
+                        <div class="card bg-light mb-3">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-shield-alt me-2"></i>Plagiarism Prevention Settings
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="enablePlagiarismCheck" name="enablePlagiarismCheck" value="true" checked>
+                                            <label class="form-check-label" for="enablePlagiarismCheck">
+                                                Enable Plagiarism Detection
+                                            </label>
+                                        </div>
+                                        <small class="text-muted">Automatically check submissions for potential plagiarism</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="randomizeQuestions" name="randomizeQuestions" value="true">
+                                            <label class="form-check-label" for="randomizeQuestions">
+                                                Randomize Question Order
+                                            </label>
+                                        </div>
+                                        <small class="text-muted">Display questions in random order for each student</small>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="timeLimit" name="timeLimit" value="true">
+                                            <label class="form-check-label" for="timeLimit">
+                                                Enable Time Limit
+                                            </label>
+                                        </div>
+                                        <small class="text-muted">Limit submission window to prevent copying</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="preventCopyPaste" name="preventCopyPaste" value="true">
+                                            <label class="form-check-label" for="preventCopyPaste">
+                                                Disable Copy/Paste
+                                            </label>
+                                        </div>
+                                        <small class="text-muted">Prevent text copying in submission area</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Academic Integrity Notice:</strong> All assignments are subject to plagiarism detection. Students found to have submitted plagiarized work will face academic penalties according to university policy.
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Create Assignment
+                            </button>
+                            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Set minimum due date to current time
+        document.addEventListener('DOMContentLoaded', function() {
+            const dueDateInput = document.getElementById('DueDate');
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            dueDateInput.min = now.toISOString().slice(0, 16);
+        });
+    </script>
+}

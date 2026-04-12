@@ -1,0 +1,168 @@
+@model UniManage.Models.ViewModels.GradeSubmissionViewModel
+@{
+    ViewData["Title"] = "Grade Submission";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Grade Assignment Submission</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Assignment Details</h5>
+                            <p><strong>Student:</strong> @Model.StudentName</p>
+                            <p><strong>Assignment:</strong> @Model.AssignmentTitle</p>
+                            <p><strong>Submitted:</strong> @Model.SubmittedAt.ToString("MMMM dd, yyyy HH:mm")</p>
+                            <p><strong>Max Points:</strong> @Model.MaxPoints</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-shield-alt me-2"></i>Plagiarism Analysis</h6>
+                                    @{
+                                        // Simulated plagiarism analysis (in real implementation, this would come from actual analysis)
+                                        var random = new Random(Model.SubmissionId.GetHashCode());
+                                        var plagiarismScore = random.Next(5, 25);
+                                        var sourcesFound = random.Next(0, 3);
+                                    }
+                                    <p class="mb-1"><strong>Similarity Score:</strong> 
+                                        <span class="badge bg-@(plagiarismScore < 15 ? "success" : plagiarismScore < 25 ? "warning" : "danger")">
+                                            @(plagiarismScore)%
+                                        </span>
+                                    </p>
+                                    <p class="mb-1"><strong>Potential Sources:</strong> @sourcesFound found</p>
+                                    <p class="mb-0"><strong>Risk Level:</strong> 
+                                        <span class="badge bg-@(plagiarismScore < 15 ? "success" : plagiarismScore < 25 ? "warning" : "danger")">
+                                            @(plagiarismScore < 15 ? "Low" : plagiarismScore < 25 ? "Medium" : "High")
+                                        </span>
+                                    </p>
+                                    @if (plagiarismScore > 20)
+                                    {
+                                        <div class="alert alert-warning mt-2">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>Attention:</strong> High similarity score detected. Review carefully for potential plagiarism.
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5>Student Submission</h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <div style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;">@Model.SubmittedContent</div>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Word count: @Model.SubmittedContent.Split(' ').Length words | 
+                                    Character count: @Model.SubmittedContent.Length characters
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <input type="hidden" asp-for="SubmissionId" />
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Grade" class="form-label">
+                                        <i class="fas fa-star me-2"></i>Grade (0-@Model.MaxPoints)
+                                    </label>
+                                    <input asp-for="Grade" class="form-control" type="number" min="0" max="@Model.MaxPoints" step="0.1" />
+                                    <span asp-validation-for="Grade" class="text-danger"></span>
+                                    <small class="form-text text-muted">
+                                        Enter grade out of @Model.MaxPoints points
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Feedback" class="form-label">
+                                        <i class="fas fa-comment me-2"></i>Feedback
+                                    </label>
+                                    <textarea asp-for="Feedback" class="form-control" rows="4" 
+                                              placeholder="Provide detailed feedback to the student..."></textarea>
+                                    <span asp-validation-for="Feedback" class="text-danger"></span>
+                                    <small class="form-text text-muted">
+                                        Constructive feedback helps students improve their work
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (plagiarismScore > 20)
+                        {
+                            <div class="alert alert-warning mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="academicIntegrityFlag" name="academicIntegrityFlag" value="true">
+                                    <label class="form-check-label" for="academicIntegrityFlag">
+                                        <strong>Flag for Academic Integrity Review</strong>
+                                    </label>
+                                </div>
+                                <small class="form-text text-muted">
+                                    Check this box if you suspect plagiarism and want this submission reviewed by the academic integrity committee.
+                                </small>
+                            </div>
+                        }
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check me-2"></i>Submit Grade
+                            </button>
+                            <a href="@Url.Action("Details", new { id = ViewBag.AssignmentId })" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="button" class="btn btn-outline-info" onclick="downloadSubmission()">
+                                <i class="fas fa-download me-2"></i>Download Submission
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function downloadSubmission() {
+            const content = `@Html.Raw(Model.SubmittedContent.Replace("\n", "\\n").Replace("\"", "\\\""))`;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'submission_@(Model.SubmissionId).txt';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        // Auto-calculate percentage
+        document.addEventListener('DOMContentLoaded', function() {
+            const gradeInput = document.getElementById('Grade');
+            const maxPoints = @Model.MaxPoints;
+            
+            gradeInput.addEventListener('input', function() {
+                const grade = parseFloat(this.value);
+                if (!isNaN(grade) && grade >= 0 && grade <= maxPoints) {
+                    const percentage = (grade / maxPoints * 100).toFixed(1);
+                    this.title = `Percentage: ${percentage}%`;
+                }
+            });
+        });
+    </script>
+}

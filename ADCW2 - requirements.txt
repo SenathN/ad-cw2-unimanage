@@ -1,0 +1,129 @@
+
+
+
+CS6004ES –Application Development
+Coursework 2 (2025/26)
+
+ The objective is to develop and document a web application using ASP.NET MVC with the C# programming language in Visual Studio. You must submit a comprehensive individual report detailing your implementation process and demonstrate the application in a Viva voce upon completion. It will be assessed using Visual Studio 2017 or any higher version and any features not working in the standard installation of Visual Studio 2017 or any higher version will not be assessed.
+Submission Deadline:  2025 December 24th
+
+Deliverables
+Documentation
+You are expected to submit a document containing the following sections.
+•	Installation Guide and User Manual
+•	Concise Description of Your Logical Solution
+•	Architecture Diagram, ER Diagram, and UML Diagrams:
+•	Detailed Description of Classes, Properties, and Methods:
+•	Own Reflection on Your Experience
+Viva voce and Demonstration
+After submitting the document, you will be required to demonstrate the functionality of your application in a Viva session as a group. 
+•	Be prepared to explain your design and implementation choices.
+•	Demonstrate key functionalities, such as adding books, processing orders, managing inventory, and generating reports.
+•	Discuss your approach to solving problems, testing, and ensuring the application's robustness.
+
+ 
+Case Study: UniManage – University Course Management System (UCMS)
+
+UniManage is a digital solution aimed at helping universities efficiently manage academic activities. The university wants to develop a comprehensive web application to allow students, lecturers, and administrators to manage courses, enrollments, assignments, and reporting. The platform should provide different functionalities for each user type while maintaining a secure and robust system.
+
+Requirements for the System
+
+User Registration and Login
+•	Implement a secure registration and login system for Students, Lecturers, and Administrators.
+•	Role-based access control to ensure users only see functions relevant to their role.
+
+Dashboard
+•	Students: View enrolled courses, assignment deadlines, and grades.
+•	Lecturers: View teaching assignments, student submissions, and grading summaries.
+•	Administrators: Overview of courses, enrollment statistics, and system usage.
+
+Course Management
+•	Administrators can create, update, and delete courses.
+•	Lecturers can upload course materials and assignments.
+
+Enrollment System
+•	Students can browse available courses and enroll.
+•	Validation of prerequisites and enrollment limits.
+
+Assignment & Grading
+•	Lecturers can create assignments, set deadlines, and record grades.
+•	Students can submit assignments online and view feedback.
+
+Reporting and Analytics
+•	Administrators and lecturers can generate reports such as course popularity, student performance, and workload analysis.
+
+Communication Module 
+•	Messaging system between students and lecturers.
+
+Security and Data Protection
+•	Protect sensitive data such as grades and personal information.
+•	Implement authentication, input validation, and protection against common web attacks.
+
+ 
+Marking Scheme
+This group coursework is worth 30% of the module mark. The following are guidelines for marking. Mark each item listed below on a scale of 0 to 5. Then multiply the mark by the weighting indicated, sum it up, and divide it by 2 to get the final mark.
+Mark 	Characterized by 
+0 	No work or work completely irrelevant
+1 	Work started in the right direction but yielded no results
+2 	Some results achieved, but with significant deficiencies and/or errors
+3 	Acceptable results but incomplete, or some good results with minor errors
+4 	Good results, but there is room for further improvement
+5 	Excellent results
+ 	Item 	Weight 	Mark 
+ (0 - 5) 	Weight x Mark 	
+Software Implementation 	 	 	 	
+1 	The application user interface 	2	5	  10.00 	
+2 	Task1: User Registration and Login	3	5	   15.00 	
+3 	Task2: Student Dashboard	3	5	  15.00 	
+4 	Task3: Lecturer Dashboard	3	5	15.00	
+5 	Task4: Administrator Dashboard	3	5	  15.00 	
+6 	Task5: Course Management	3	5	  15.00 	
+7 	Task6: Enrollment System	3	5	  15.00 	
+8 	Task7: Assignment & Grading	3	5	 15.00 	
+9 	Task 8: Reporting and Analytics	3	5	  15.00 	
+10	Task9: Communication Module 	2	5	10.00	
+11	Security and Data Protection	2	5	10.00	
+ Reflective Essay 	 	 	 	
+1 	Installation Guide and User Manual	1 	5 	   5.00 	
+2 	A concise description of your logical solution to each of the implemented functions of the application.  	1 	5 	   5.00 	
+3 	Architecture diagrams	1 	5 	   5.00 	
+4 	A detailed description of the classes, properties, and methods 	1 	5 	   5.00 	
+5 	Own reflection of your experience 	1 	5 	   5.00 	
+Programming style 	 	 	 	
+1 	Clarity of code which shows the underlying algorithm 	1 	5 	   5.00 	
+2 	Sensible naming of programmer-defined variables, classes, properties, and methods 	1 	5 	   5.00 	
+3 	Useful comments in code 	1 	5 	   5.00 	
+4 	Data validation and exception handling 	1 	5 	   5.00 	
+5 	Interface design and usability of the system 	1 	5 	   5.00 	
+ 	Total 			200.00  	
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

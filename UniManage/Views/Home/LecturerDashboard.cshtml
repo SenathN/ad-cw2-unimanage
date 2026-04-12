@@ -1,0 +1,198 @@
+@using UniManage.Models
+@{
+    ViewData["Title"] = "Lecturer Dashboard";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Lecturer Dashboard</h2>
+            <p class="text-muted">Welcome back, @User.Identity?.Name!</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">My Courses</h5>
+                    <h2 class="display-4">@(ViewBag.Courses?.Count ?? 0)</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Students</h5>
+                    <h2 class="display-4">@(((List<Course>)ViewBag.Courses)?.Sum(c => c.Enrollments.Count) ?? 0)</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Assignments</h5>
+                    <h2 class="display-4">@(ViewBag.Assignments?.Count ?? 0)</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Submissions</h5>
+                    <h2 class="display-4">@(((List<Assignment>)ViewBag.Assignments)?.Sum(a => a.Submissions.Count(s => s.Status == SubmissionStatus.Submitted)) ?? 0)</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">My Courses</h5>
+                    <a href="@Url.Action("Create", "Course")" class="btn btn-sm btn-primary">Create Course</a>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.Courses != null && ((List<Course>)ViewBag.Courses).Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Title</th>
+                                        <th>Students</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var course in (List<Course>)ViewBag.Courses)
+                                    {
+                                        <tr>
+                                            <td>@course.CourseCode</td>
+                                            <td>@course.Title</td>
+                                            <td>@course.Enrollments.Count/@course.MaxEnrollment</td>
+                                            <td>
+                                                <span class="badge bg-@(course.IsActive ? "success" : "secondary")">
+                                                    @(course.IsActive ? "Active" : "Inactive")
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">You haven't created any courses yet.</p>
+                        <a href="@Url.Action("Create", "Course")" class="btn btn-primary">Create Your First Course</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Submissions</h5>
+                    <a href="@Url.Action("Index", "Assignment")" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.Assignments != null && ((List<Assignment>)ViewBag.Assignments).Any())
+                    {
+                        var recentSubmissions = ((List<Assignment>)ViewBag.Assignments)
+                            .SelectMany(a => a.Submissions)
+                            .OrderByDescending(s => s.SubmittedAt)
+                            .Take(5);
+
+                        if (recentSubmissions.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Student</th>
+                                            <th>Assignment</th>
+                                            <th>Submitted</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var submission in recentSubmissions)
+                                        {
+                                            <tr>
+                                                <td>@submission.Student.FirstName @submission.Student.LastName</td>
+                                                <td>@submission.Assignment.Title</td>
+                                                <td>@submission.SubmittedAt.ToString("MMM dd")</td>
+                                                <td>
+                                                    <span class="badge bg-@(submission.Status == SubmissionStatus.Graded ? "success" : "warning")">
+                                                        @submission.Status
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @if (submission.Status == SubmissionStatus.Submitted)
+                                                    {
+                                                        <a href="@Url.Action("Grade", "Assignment", new { id = submission.Id })" class="btn btn-sm btn-primary">Grade</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="@Url.Action("ViewSubmission", "Assignment", new { id = submission.Id })" class="btn btn-sm btn-outline-primary">View</a>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No recent submissions.</p>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No assignments created yet.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="@Url.Action("Create", "Course")" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-plus me-2"></i>Create New Course
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="@Url.Action("Create", "Assignment")" class="btn btn-outline-success w-100">
+                                <i class="fas fa-tasks me-2"></i>Create Assignment
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="@Url.Action("Index", "Course")" class="btn btn-outline-info w-100">
+                                <i class="fas fa-book me-2"></i>Manage Courses
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="@Url.Action("Index", "Message")" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-envelope me-2"></i>Messages
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,177 @@
+@using UniManage.Models
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Student Dashboard</h2>
+            <p class="text-muted">Welcome back, @User.Identity?.Name!</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Enrolled Courses</h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.Enrollments != null && ((List<Enrollment>)ViewBag.Enrollments).Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Course Name</th>
+                                        <th>Lecturer</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var enrollment in (List<Enrollment>)ViewBag.Enrollments)
+                                    {
+                                        <tr>
+                                            <td>@enrollment.Course.CourseCode</td>
+                                            <td>@enrollment.Course.Title</td>
+                                            <td>@enrollment.Course.Lecturer.FirstName @enrollment.Course.Lecturer.LastName</td>
+                                            <td><span class="badge bg-success">@enrollment.Status</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">You are not enrolled in any courses yet.</p>
+                        <a href="@Url.Action("Browse", "Course")" class="btn btn-primary">Browse Courses</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Submissions</h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.Submissions != null && ((List<Submission>)ViewBag.Submissions).Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Assignment</th>
+                                        <th>Course</th>
+                                        <th>Status</th>
+                                        <th>Grade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var submission in ((List<Submission>)ViewBag.Submissions).Take(5))
+                                    {
+                                        <tr>
+                                            <td>@submission.Assignment.Title</td>
+                                            <td>@submission.Assignment.Course.CourseCode</td>
+                                            <td>
+                                                <span class="badge bg-@(submission.Status == SubmissionStatus.Graded ? "success" : submission.Status == SubmissionStatus.Late ? "warning" : "primary")">
+                                                    @submission.Status
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (submission.Grade.HasValue)
+                                                {
+                                                    <span class="text-success fw-bold">@submission.Grade.Value.ToString("F1")%</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Not graded</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No submissions yet.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Upcoming Assignments</h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.Assignments != null && ((List<Assignment>)ViewBag.Assignments).Any())
+                    {
+                        var upcomingAssignments = ((List<Assignment>)ViewBag.Assignments)
+                            .Where(a => a.DueDate > DateTime.Now)
+                            .OrderBy(a => a.DueDate)
+                            .Take(5);
+
+                        if (upcomingAssignments.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Assignment</th>
+                                            <th>Course</th>
+                                            <th>Due Date</th>
+                                            <th>Max Points</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var assignment in upcomingAssignments)
+                                        {
+                                            var hasSubmitted = ((List<Submission>)ViewBag.Submissions)
+                                                .Any(s => s.AssignmentId == assignment.Id);
+                                            
+                                            <tr class="@(assignment.DueDate < DateTime.Now.AddDays(3) ? "table-warning" : "")">
+                                                <td>@assignment.Title</td>
+                                                <td>@assignment.Course.CourseCode - @assignment.Course.Title</td>
+                                                <td>@assignment.DueDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                                <td>@assignment.MaxPoints</td>
+                                                <td>
+                                                    @if (hasSubmitted)
+                                                    {
+                                                        <span class="badge bg-success">Submitted</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="@Url.Action("Submit", "Assignment", new { id = assignment.Id })" class="btn btn-sm btn-primary">Submit</a>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No upcoming assignments.</p>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No assignments available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

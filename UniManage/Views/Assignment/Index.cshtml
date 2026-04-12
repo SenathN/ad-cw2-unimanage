@@ -1,0 +1,153 @@
+@model IEnumerable<UniManage.Models.Assignment>
+@{
+    ViewData["Title"] = "Assignments";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>My Assignments</h2>
+                @if (User.IsInRole("Lecturer") || User.IsInRole("Administrator"))
+                {
+                    <a href="@Url.Action("Create")" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Create Assignment
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var assignment in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary">@assignment.Course.CourseCode</span>
+                            <span class="badge bg-@(assignment.DueDate < DateTime.Now ? "danger" : "success")">
+                                @(assignment.DueDate < DateTime.Now ? "Overdue" : "Active")
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@assignment.Title</h5>
+                            <p class="card-text text-muted small">
+                                Course: @assignment.Course.Title
+                            </p>
+                            <p class="card-text">
+                                @(assignment.Description.Length > 100 ? assignment.Description.Substring(0, 100) + "..." : assignment.Description)
+                            </p>
+                            
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    Due: @assignment.DueDate.ToString("MMM dd, yyyy HH:mm")
+                                </small>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-star me-1"></i>
+                                    Max Points: @assignment.MaxPoints
+                                </small>
+                            </div>
+
+                            @if (User.IsInRole("Student"))
+                            {
+                                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                                var userSubmission = assignment.Submissions.FirstOrDefault(s => s.StudentId == userId);
+                                if (userSubmission != null)
+                                {
+                                    <div class="mt-2">
+                                        <span class="badge bg-@(userSubmission.Status == SubmissionStatus.Graded ? "success" : userSubmission.Status == SubmissionStatus.Late ? "warning" : "primary")">
+                                            @(userSubmission.Status)
+                                        </span>
+                                        @if (userSubmission.Grade.HasValue)
+                                        {
+                                            <span class="badge bg-info ms-1">Grade: @userSubmission.Grade.Value.ToString("F1")</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="mt-2">
+                                        <span class="badge bg-secondary">Not Submitted</span>
+                                    </div>
+                                }
+                            }
+                            else if (User.IsInRole("Lecturer") || User.IsInRole("Administrator"))
+                            {
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-users me-1"></i>
+                                        @assignment.Submissions.Count submissions
+                                    </small>
+                                </div>
+                                <div class="mt-1">
+                                    <small class="text-muted">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        @assignment.Submissions.Count(s => s.Status == SubmissionStatus.Graded) graded
+                                    </small>
+                                </div>
+                            }
+                        </div>
+                        <div class="card-footer">
+                            <div class="btn-group w-100" role="group">
+                                <a href="@Url.Action("Details", new { id = assignment.Id })" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                                
+                                @if (User.IsInRole("Student"))
+                                {
+                                    var userSubmission = assignment.Submissions.FirstOrDefault();
+                                    if (userSubmission == null && assignment.DueDate > DateTime.Now)
+                                    {
+                                        <a href="@Url.Action("Submit", new { id = assignment.Id })" class="btn btn-success btn-sm">
+                                            <i class="fas fa-upload me-1"></i>Submit
+                                        </a>
+                                    }
+                                    else if (userSubmission != null && userSubmission.Status != SubmissionStatus.Graded)
+                                    {
+                                        <a href="@Url.Action("Submit", new { id = assignment.Id })" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit me-1"></i>Edit
+                                        </a>
+                                    }
+                                }
+                                
+                                @if (User.IsInRole("Lecturer") || User.IsInRole("Administrator"))
+                                {
+                                    <a href="@Url.Action("Edit", new { id = assignment.Id })" class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No assignments available</h4>
+            <p class="text-muted">
+                @if (User.IsInRole("Student"))
+                {
+                    @:You don't have any assignments for your enrolled courses.
+                }
+                else
+                {
+                    @:You haven't created any assignments yet.
+                }
+            </p>
+            @if (User.IsInRole("Lecturer") || User.IsInRole("Administrator"))
+            {
+                <a href="@Url.Action("Create")" class="btn btn-primary">Create Your First Assignment</a>
+            }
+        </div>
+    }
+</div>

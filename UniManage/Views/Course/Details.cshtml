@@ -1,0 +1,222 @@
+@model UniManage.Models.Course
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Browse")">Courses</a></li>
+                    <li class="breadcrumb-item active">@Model.Title</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">@Model.CourseCode - @Model.Title</h3>
+                        <div>
+                            <span class="badge bg-primary">@Model.Credits Credits</span>
+                            <span class="badge bg-@(Model.IsActive ? "success" : "secondary")">
+                                @(Model.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Instructor:</strong>
+                            <p class="mb-1">@Model.Lecturer.FirstName @Model.Lecturer.LastName</p>
+                            <small class="text-muted">@Model.Lecturer.Email</small>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Enrollment:</strong>
+                            <p class="mb-1">@Model.CurrentEnrollment / @Model.MaxEnrollment students</p>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar" style="width: @(Model.CurrentEnrollment * 100 / Model.MaxEnrollment)%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>Course Description</h5>
+                        <p>@Model.Description</p>
+                    </div>
+
+                    @if (Model.Prerequisites.Any())
+                    {
+                        <div class="mb-4">
+                            <h5>Prerequisites</h5>
+                            <div class="list-group">
+                                @foreach (var prereq in Model.Prerequisites)
+                                {
+                                    <a href="@Url.Action("Details", new { id = prereq.PrerequisiteCourseId })" 
+                                       class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">@prereq.PrerequisiteCourse.CourseCode</h6>
+                                            <small class="text-muted">@prereq.PrerequisiteCourse.Credits Credits</small>
+                                        </div>
+                                        <p class="mb-1">@prereq.PrerequisiteCourse.Title</p>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (User.IsInRole("Student"))
+                    {
+                        <div class="d-flex gap-2">
+                            @if (ViewBag.IsEnrolled == true)
+                            {
+                                <form method="post" action="@Url.Action("Drop", "Course", new { id = Model.Id })" 
+                                      onsubmit="return confirm('Are you sure you want to drop this course?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-warning">Drop Course</button>
+                                </form>
+                                <a href="@Url.Action("StudentDashboard", "Home")" class="btn btn-outline-secondary">View Dashboard</a>
+                            }
+                            else if (ViewBag.CanEnroll == true)
+                            {
+                                <form method="post" action="@Url.Action("Enroll", "Course", new { id = Model.Id })">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-success">Enroll Now</button>
+                                </form>
+                            }
+                            else if (ViewBag.CanEnroll == false)
+                            {
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    You do not meet the prerequisites for this course.
+                                </div>
+                            }
+                            else if (Model.CurrentEnrollment >= Model.MaxEnrollment)
+                            {
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-users me-2"></i>
+                                    This course is full.
+                                </div>
+                            }
+                        </div>
+                    }
+                    else if (!User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Please <a href="@Url.Action("Login", "Account")" class="alert-link">login</a> or 
+                            <a href="@Url.Action("Register", "Account")" class="alert-link">register</a> as a student to enroll in this course.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Course Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <strong>Course Code:</strong><br>
+                            @Model.CourseCode
+                        </li>
+                        <li class="mb-2">
+                            <strong>Credits:</strong><br>
+                            @Model.Credits
+                        </li>
+                        <li class="mb-2">
+                            <strong>Status:</strong><br>
+                            <span class="badge bg-@(Model.IsActive ? "success" : "secondary")">
+                                @(Model.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </li>
+                        <li class="mb-2">
+                            <strong>Created:</strong><br>
+                            @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            @if (User.IsInRole("Administrator") || (User.IsInRole("Lecturer") && Model.LecturerId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value))
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Course Management</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            @if (User.IsInRole("Administrator"))
+                            {
+                                <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-outline-primary">Edit Course</a>
+                            }
+                            <a href="@Url.Action("Create", "Assignment", new { courseId = Model.Id })" class="btn btn-outline-success">Create Assignment</a>
+                            <a href="@Url.Action("Index", "Assignment", new { courseId = Model.Id })" class="btn btn-outline-info">View Assignments</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (Model.Enrollments.Any())
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Enrolled Students (@Model.Enrollments.Count)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th>Email</th>
+                                        <th>Enrolled Date</th>
+                                        <th>Status</th>
+                                        <th>Grade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var enrollment in Model.Enrollments)
+                                    {
+                                        <tr>
+                                            <td>@enrollment.Student.FirstName @enrollment.Student.LastName</td>
+                                            <td>@enrollment.Student.Email</td>
+                                            <td>@enrollment.EnrolledAt.ToString("MMM dd, yyyy")</td>
+                                            <td>
+                                                <span class="badge bg-@(enrollment.Status == EnrollmentStatus.Active ? "success" : "secondary")">
+                                                    @enrollment.Status
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (enrollment.FinalGrade.HasValue)
+                                                {
+                                                    <span class="text-success fw-bold">@enrollment.FinalGrade.Value.ToString("F1")%</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Not graded</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

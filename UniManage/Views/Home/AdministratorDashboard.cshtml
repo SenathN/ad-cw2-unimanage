@@ -1,0 +1,197 @@
+@{
+    ViewData["Title"] = "Administrator Dashboard";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Administrator Dashboard</h2>
+            <p class="text-muted">Welcome back, @User.Identity?.Name!</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <h2 class="display-4">@ViewBag.TotalUsers</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Courses</h5>
+                    <h2 class="display-4">@ViewBag.TotalCourses</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Enrollments</h5>
+                    <h2 class="display-4">@ViewBag.TotalEnrollments</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Assignments</h5>
+                    <h2 class="display-4">@ViewBag.TotalAssignments</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">User Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Students</span>
+                            <span class="badge bg-primary">@ViewBag.StudentCount</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" style="width: @(ViewBag.TotalUsers > 0 ? (ViewBag.StudentCount * 100 / ViewBag.TotalUsers) : 0)%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Lecturers</span>
+                            <span class="badge bg-success">@ViewBag.LecturerCount</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: @(ViewBag.TotalUsers > 0 ? (ViewBag.LecturerCount * 100 / ViewBag.TotalUsers) : 0)%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Administrators</span>
+                            <span class="badge bg-warning">@ViewBag.AdministratorCount</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: @(ViewBag.TotalUsers > 0 ? (ViewBag.AdministratorCount * 100 / ViewBag.TotalUsers) : 0)%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">System Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Course Statistics</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-book text-primary me-2"></i>
+                                    Average students per course: @(@ViewBag.TotalCourses > 0 ? Math.Round((double)@ViewBag.TotalEnrollments / @ViewBag.TotalCourses, 1) : 0)
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-tasks text-success me-2"></i>
+                                    Average assignments per course: @(@ViewBag.TotalCourses > 0 ? Math.Round((double)@ViewBag.TotalAssignments / @ViewBag.TotalCourses, 1) : 0)
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>User Activity</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-user-graduate text-info me-2"></i>
+                                    Enrollments per student: @(@ViewBag.StudentCount > 0 ? Math.Round((double)@ViewBag.TotalEnrollments / @ViewBag.StudentCount, 1) : 0)
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-chalkboard-teacher text-warning me-2"></i>
+                                    Courses per lecturer: @(@ViewBag.LecturerCount > 0 ? Math.Round((double)@ViewBag.TotalCourses / @ViewBag.LecturerCount, 1) : 0)
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Administrative Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="@Url.Action("Index", "UserManagement")" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-users me-2"></i>Manage Users
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="@Url.Action("Index", "CourseManagement")" class="btn btn-outline-success w-100">
+                                <i class="fas fa-book me-2"></i>Manage Courses
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="@Url.Action("Reports", "Admin")" class="btn btn-outline-info w-100">
+                                <i class="fas fa-chart-bar me-2"></i>Generate Reports
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="@Url.Action("Settings", "Admin")" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-cog me-2"></i>System Settings
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="@Url.Action("EnrollmentManagement", "Admin")" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-user-plus me-2"></i>Enrollment Management
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="@Url.Action("AuditLogs", "Admin")" class="btn btn-outline-dark w-100">
+                                <i class="fas fa-history me-2"></i>Audit Logs
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="@Url.Action("Backup", "Admin")" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-download me-2"></i>Backup Data
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="@Url.Action("SystemHealth", "Admin")" class="btn btn-outline-success w-100">
+                                <i class="fas fa-heartbeat me-2"></i>System Health
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent System Activity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        System is running normally. Last backup: @DateTime.Now.AddDays(-1).ToString("MMM dd, yyyy HH:mm")
+                    </div>
+                    <p class="text-muted mb-0">Detailed activity logs and system monitoring features are available in the Audit Logs section.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

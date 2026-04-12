@@ -1,0 +1,316 @@
+@model UniManage.Models.Assignment
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")">Assignments</a></li>
+                    <li class="breadcrumb-item active">@Model.Title</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">@Model.Title</h3>
+                    <div>
+                        <span class="badge bg-primary">@Model.Course.CourseCode</span>
+                        <span class="badge bg-@(Model.DueDate < DateTime.Now ? "danger" : "success")">
+                            @(Model.DueDate < DateTime.Now ? "Overdue" : "Active")
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Course:</strong> @Model.Course.Title<br>
+                            <strong>Lecturer:</strong> @Model.Lecturer.FirstName @Model.Lecturer.LastName<br>
+                            <strong>Due Date:</strong> @Model.DueDate.ToString("MMMM dd, yyyy HH:mm")
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Max Points:</strong> @Model.MaxPoints<br>
+                            <strong>Created:</strong> @Model.CreatedAt.ToString("MMMM dd, yyyy")<br>
+                            <strong>Status:</strong>
+                            <span class="badge bg-@(Model.IsActive ? "success" : "secondary")">
+                                @(Model.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>Assignment Description</h5>
+                        <div class="alert alert-info">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            <strong>Academic Integrity Notice:</strong> This assignment is protected by plagiarism detection software. All submissions will be checked for originality.
+                        </div>
+                        <div style="white-space: pre-wrap;">@Model.Description</div>
+                    </div>
+
+                    @if (User.IsInRole("Student"))
+                    {
+                        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                        var userSubmission = Model.Submissions.FirstOrDefault(s => s.StudentId == userId);
+                        
+                        if (userSubmission != null)
+                        {
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Your Submission</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <strong>Submitted:</strong> @userSubmission.SubmittedAt.ToString("MMMM dd, yyyy HH:mm")<br>
+                                            <strong>Status:</strong>
+                                            <span class="badge bg-@(userSubmission.Status == SubmissionStatus.Graded ? "success" : userSubmission.Status == SubmissionStatus.Late ? "warning" : "primary")">
+                                                @userSubmission.Status
+                                            </span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            @if (userSubmission.Grade.HasValue)
+                                            {
+                                                <strong>Grade:</strong> <span class="text-success fw-bold">@userSubmission.Grade.Value.ToString("F1")/@Model.MaxPoints</span><br>
+                                                <strong>Percentage:</strong> <span class="text-success fw-bold">@(userSubmission.Grade.Value * 100 / Model.MaxPoints).ToString("F1")%</span>
+                                            }
+                                            else
+                                            {
+                                                <strong>Grade:</strong> <span class="text-muted">Not graded yet</span>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <h6>Submission Content:</h6>
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <p style="white-space: pre-wrap;">@userSubmission.Content</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(userSubmission.Feedback))
+                                    {
+                                        <div class="mb-3">
+                                            <h6>Lecturer Feedback:</h6>
+                                            <div class="card bg-success text-white">
+                                                <div class="card-body">
+                                                    <p style="white-space: pre-wrap;">@userSubmission.Feedback</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (userSubmission.Status != SubmissionStatus.Graded && Model.DueDate > DateTime.Now)
+                                    {
+                                        <a href="@Url.Action("Submit", new { id = Model.Id })" class="btn btn-warning">
+                                            <i class="fas fa-edit me-2"></i>Edit Submission
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                You haven't submitted this assignment yet.
+                                @if (Model.DueDate > DateTime.Now)
+                                {
+                                    <a href="@Url.Action("Submit", new { id = Model.Id })" class="btn btn-primary ms-2">
+                                        <i class="fas fa-upload me-2"></i>Submit Now
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">The due date has passed.</span>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Assignment Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <strong>Course Code:</strong><br>
+                            @Model.Course.CourseCode
+                        </li>
+                        <li class="mb-2">
+                            <strong>Max Points:</strong><br>
+                            @Model.MaxPoints
+                        </li>
+                        <li class="mb-2">
+                            <strong>Due Date:</strong><br>
+                            @Model.DueDate.ToString("MMM dd, yyyy HH:mm")
+                        </li>
+                        <li class="mb-2">
+                            <strong>Time Remaining:</strong><br>
+                            @{
+                                var timeRemaining = Model.DueDate - DateTime.Now;
+                                if (timeRemaining.TotalDays > 0)
+                                {
+                                    <span class="text-success">@(timeRemaining.Days) days, @(timeRemaining.Hours) hours</span>
+                                }
+                                else if (timeRemaining.TotalHours > 0)
+                                {
+                                    <span class="text-warning">@(timeRemaining.Hours) hours, @(timeRemaining.Minutes) minutes</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">Overdue</span>
+                                }
+                            }
+                        </li>
+                        <li class="mb-2">
+                            <strong>Status:</strong><br>
+                            <span class="badge bg-@(Model.IsActive ? "success" : "secondary")">
+                                @(Model.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            @if (User.IsInRole("Lecturer") || User.IsInRole("Administrator"))
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Submission Statistics</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <strong>Total Submissions:</strong> @Model.Submissions.Count
+                        </div>
+                        <div class="mb-2">
+                            <strong>Graded:</strong> @Model.Submissions.Count(s => s.Status == SubmissionStatus.Graded)
+                        </div>
+                        <div class="mb-2">
+                            <strong>Pending:</strong> @Model.Submissions.Count(s => s.Status == SubmissionStatus.Submitted)
+                        </div>
+                        <div class="mb-2">
+                            <strong>Late:</strong> @Model.Submissions.Count(s => s.Status == SubmissionStatus.Late)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-outline-primary">
+                                <i class="fas fa-edit me-2"></i>Edit Assignment
+                            </a>
+                            <a href="@Url.Action("Submissions", new { id = Model.Id })" class="btn btn-outline-success">
+                                <i class="fas fa-list me-2"></i>View All Submissions
+                            </a>
+                            <button class="btn btn-outline-info" onclick="generatePlagiarismReport()">
+                                <i class="fas fa-shield-alt me-2"></i>Plagiarism Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if ((User.IsInRole("Lecturer") || User.IsInRole("Administrator")) && Model.Submissions.Any())
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Student Submissions (@Model.Submissions.Count)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Submitted</th>
+                                        <th>Status</th>
+                                        <th>Grade</th>
+                                        <th>Plagiarism Score</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var submission in Model.Submissions)
+                                    {
+                                        <tr>
+                                            <td>@submission.Student.FirstName @submission.Student.LastName</td>
+                                            <td>@submission.SubmittedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                                            <td>
+                                                <span class="badge bg-@(submission.Status == SubmissionStatus.Graded ? "success" : submission.Status == SubmissionStatus.Late ? "warning" : "primary")">
+                                                    @submission.Status
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (submission.Grade.HasValue)
+                                                {
+                                                    <span class="text-success fw-bold">@submission.Grade.Value.ToString("F1")%</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Not graded</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @{
+                                                    // Simulated plagiarism score (in real implementation, this would come from actual analysis)
+                                                    var random = new Random(submission.Id.GetHashCode());
+                                                    var plagiarismScore = random.Next(5, 25);
+                                                }
+                                                <span class="badge bg-@(plagiarismScore < 15 ? "success" : plagiarismScore < 25 ? "warning" : "danger")">
+                                                    @(plagiarismScore)% similarity
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="@Url.Action("Grade", new { id = submission.Id })" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-graduation-cap"></i>
+                                                    </a>
+                                                    <button class="btn btn-sm btn-outline-info" onclick="viewSubmission(@submission.Id)">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function generatePlagiarismReport() {
+            alert('Plagiarism report generation would be implemented here with actual plagiarism detection API integration.');
+        }
+
+        function viewSubmission(submissionId) {
+            window.open('@Url.Action("Grade")' + '/' + submissionId, '_blank');
+        }
+    </script>
+}

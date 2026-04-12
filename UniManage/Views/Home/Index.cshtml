@@ -1,0 +1,78 @@
+﻿@{
+    ViewData["Title"] = "UniManage - University Course Management System";
+}
+
+<div class="hero-section bg-primary text-white py-5 mb-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold">Welcome to UniManage</h1>
+                <p class="lead">Your comprehensive University Course Management System for students, lecturers, and administrators.</p>
+                <div class="mt-4">
+                    <a href="@Url.Action("Login", "Account")" class="btn btn-light btn-lg me-3">Login</a>
+                    <a href="@Url.Action("Register", "Account")" class="btn btn-outline-light btn-lg">Register</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-graduation-cap fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">Students</h5>
+                    <p class="card-text">Browse courses, manage enrollments, submit assignments, and track your academic progress.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-chalkboard-teacher fa-3x text-success"></i>
+                    </div>
+                    <h5 class="card-title">Lecturers</h5>
+                    <p class="card-text">Create assignments, manage course materials, grade submissions, and communicate with students.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-shield fa-3x text-warning"></i>
+                    </div>
+                    <h5 class="card-title">Administrators</h5>
+                    <p class="card-text">Oversee system operations, manage courses, generate reports, and maintain system security.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Key Features</h2>
+        </div>
+        <div class="col-md-6">
+            <ul class="list-unstyled">
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Secure user authentication and role-based access</li>
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Course management and enrollment system</li>
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Assignment creation and submission tracking</li>
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Grading and feedback system</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <ul class="list-unstyled">
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Messaging and communication module</li>
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Comprehensive reporting and analytics</li>
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Prerequisite validation for enrollments</li>
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Real-time dashboard for all user types</li>
+            </ul>
+        </div>
+    </div>
+</div>
