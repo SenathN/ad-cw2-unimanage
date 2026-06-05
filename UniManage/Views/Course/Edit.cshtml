@@ -46,6 +46,12 @@
                         </div>
 
                         <div class="form-group mb-3">
+                            <label asp-for="LecturerId" class="form-label"></label>
+                            <select asp-for="LecturerId" class="form-select" asp-items="ViewBag.Lecturers"></select>
+                            <span asp-validation-for="LecturerId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
                             <label asp-for="MaxEnrollment" class="form-label"></label>
                             <input asp-for="MaxEnrollment" class="form-control" type="number" min="1" max="200" />
                             <span asp-validation-for="MaxEnrollment" class="text-danger"></span>
