@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UniManage.Models;
 using UniManage.Data;
+using UniManage.Models.ViewModels;
 
 namespace UniManage.Controllers
 {
@@ -129,6 +130,53 @@ namespace UniManage.Controllers
             ViewBag.AdministratorCount = administrators.Count;
 
             return View();
+        }
+
+        [Authorize(Roles = "Administrator,Lecturer")]
+        public async Task<IActionResult> Reports()
+        {
+            var model = new SystemReportViewModel();
+
+            // Basic stats
+            var students = await _userManager.GetUsersInRoleAsync("Student");
+            var lecturers = await _userManager.GetUsersInRoleAsync("Lecturer");
+            var administrators = await _userManager.GetUsersInRoleAsync("Administrator");
+
+            model.TotalStudents = students.Count;
+            model.TotalLecturers = lecturers.Count;
+            model.TotalAdministrators = administrators.Count;
+            
+            model.TotalCourses = await _context.Courses.CountAsync();
+            model.TotalAssignments = await _context.Assignments.CountAsync();
+            model.TotalSubmissions = await _context.Submissions.CountAsync();
+            model.TotalEnrollments = await _context.Enrollments.CountAsync();
+
+            // Top enrolled courses
+            model.TopEnrolledCourses = await _context.Courses
+                .Select(c => new CourseEnrollmentReport
+                {
+                    CourseName = c.Title,
+                    EnrollmentCount = c.Enrollments.Count
+                })
+                .OrderByDescending(c => c.EnrollmentCount)
+                .Take(5)
+                .ToListAsync();
+
+            // Lecturer performance
+            foreach (var lecturer in lecturers)
+            {
+                var courseCount = await _context.Courses.CountAsync(c => c.LecturerId == lecturer.Id);
+                var assignmentCount = await _context.Assignments.CountAsync(a => a.LecturerId == lecturer.Id);
+                
+                model.LecturerPerformance.Add(new LecturerPerformanceReport
+                {
+                    LecturerName = $"{lecturer.FirstName} {lecturer.LastName}",
+                    CourseCount = courseCount,
+                    AssignmentCount = assignmentCount
+                });
+            }
+
+            return View(model);
         }
 
         public IActionResult Privacy()
