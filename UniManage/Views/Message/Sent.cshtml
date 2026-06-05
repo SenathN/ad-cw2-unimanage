@@ -1,0 +1,99 @@
+@model IEnumerable<UniManage.Models.Message>
+@{
+    ViewData["Title"] = "Sent Messages";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-paper-plane me-2"></i>Sent</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>New Message
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a asp-action="Index" class="list-group-item list-group-item-action">
+                    <i class="fas fa-envelope me-2"></i>All Messages
+                </a>
+                <a asp-action="Inbox" class="list-group-item list-group-item-action">
+                    <i class="fas fa-download me-2"></i>Inbox
+                </a>
+                <a asp-action="Sent" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-paper-plane me-2"></i>Sent
+                </a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-paper-plane text-muted fa-3x mb-3"></i>
+                            <p class="text-muted">You haven't sent any messages yet.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>To</th>
+                                        <th>Subject</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @item.Receiver.FirstName @item.Receiver.LastName
+                                            </td>
+                                            <td>
+                                                <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-dark">
+                                                    @item.Subject
+                                                </a>
+                                            </td>
+                                            <td class="small">
+                                                @item.SentAt.ToString("MMM dd, yyyy HH:mm")
+                                            </td>
+                                            <td>
+                                                @if (item.ReadAt.HasValue)
+                                                {
+                                                    <span class="badge bg-success">Read</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Unread</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info" title="View">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this message?')">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-outline-danger" title="Delete">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

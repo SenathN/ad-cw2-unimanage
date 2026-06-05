@@ -98,6 +98,7 @@ namespace UniManage.Controllers
                 await _context.SaveChangesAsync();
             }
 
+            ViewBag.CurrentUserId = user.Id;
             return View(message);
         }
 
