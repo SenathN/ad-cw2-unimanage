@@ -184,6 +184,11 @@ namespace UniManage.Controllers
             return View();
         }
 
+        public IActionResult TestRoute()
+        {
+            return Content("Routing is working");
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

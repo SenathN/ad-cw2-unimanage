@@ -20,6 +20,16 @@ namespace UniManage.Controllers
             _userManager = userManager;
         }
 
+        // GET: Course
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Index()
+        {
+            var courses = await _context.Courses
+                .Include(c => c.Lecturer)
+                .ToListAsync();
+            return View(courses);
+        }
+
         // GET: Course/Browse
         [AllowAnonymous]
         public async Task<IActionResult> Browse()

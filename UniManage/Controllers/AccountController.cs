@@ -75,7 +75,7 @@ namespace UniManage.Controllers
                     Email = model.Email,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
-                    Role = model.Role,
+                    Role = UserRole.Student,
                     CreatedAt = DateTime.UtcNow,
                     IsActive = true
                 };
@@ -85,7 +85,7 @@ namespace UniManage.Controllers
                 if (result.Succeeded)
                 {
                     // Assign role to user
-                    var roleName = model.Role.ToString();
+                    var roleName = UserRole.Student.ToString();
                     if (!await _roleManager.RoleExistsAsync(roleName))
                     {
                         await _roleManager.CreateAsync(new IdentityRole(roleName));
